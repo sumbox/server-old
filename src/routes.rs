@@ -1,16 +1,17 @@
-use axum::{extract::Json, http::{StatusCode}};
+use axum::{extract::Json, http::{StatusCode, header::SET_COOKIE}, response::{IntoResponse, AppendHeaders}};
 use serde::{Deserialize, Serialize};
 use std::{env::var, fs};
 use jsonwebtoken::{encode, Header, EncodingKey};
 use std::time::SystemTime;
 
-pub async fn login(Json(body): Json<User>) -> (StatusCode, &'static str) {
+pub async fn login(Json(body): Json<User>) -> impl IntoResponse {
     if body.is_valid() {
-        let _token = Claims::encode(&body);
-        
-        return (StatusCode::OK, "OK");
+        let token = Claims::encode(&body);
+        let headers = AppendHeaders([(SET_COOKIE, format!("sumboxlogin={}",token))]);
+        (StatusCode::OK,headers, "OK")
     }   else {
-        return (StatusCode::UNAUTHORIZED, "Invalid Credentials")
+
+        return (StatusCode::UNAUTHORIZED, AppendHeaders([(SET_COOKIE, String::from(""))]),"Invalid Credentials")
     }
 }
 
