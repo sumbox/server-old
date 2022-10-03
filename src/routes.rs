@@ -1,7 +1,8 @@
 use axum::{extract::Json, http::StatusCode};
 use serde::{Deserialize, Serialize};
-use std::{env::var, fs};
-use jsonwebtoken::{encode, Header, EncodingKey};
+use server::ideas::create_idea;
+use std::{env::var, time::{Duration}};
+use jsonwebtoken::{encode, Header, EncodingKey, decode, DecodingKey, Validation, Algorithm, errors::ErrorKind};
 use std::time::SystemTime;
 use axum_extra::extract::cookie::{CookieJar, Cookie};
 
@@ -32,14 +33,47 @@ pub async fn logout(jar:CookieJar) -> Result<(CookieJar, String), (StatusCode, S
     }
 }
 
+pub async fn new_idea(Json(body) : Json<Idea>, jar: CookieJar) -> Result<String, (StatusCode, String)> {
+    if validate_login(&jar) {
+        create_idea(&body.title, &body.body);
+        Ok(String::from("OK"))
+    } else {
+        return Err({
+            (StatusCode::UNAUTHORIZED, "Not Logged In".to_string())
+        })
+    }
+
+}
 
 
+fn validate_login(jar: &CookieJar) -> bool {
+    let cookie : Option<&Cookie> = Some(jar.get("sumboxlogin")).unwrap_or(None);
+    if cookie.is_none() {
+        return false
+    }
 
-#[derive(Deserialize, Debug)]
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.sub = Some(var("AUTH_EMAIL").expect("AUTH_SECRET Should be set"));
+ 
+   match decode::<Claims>(&cookie.unwrap().value(), &DecodingKey::from_secret(var("AUTH_SECRET").expect("AUTH_SECRET Should be set").as_ref()), &validation) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
+
+#[derive(Deserialize)]
 pub struct User {
     email: String,
     password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct Idea {
+    title: String,
+    body: String
+}
+
 
 impl User {
     pub fn is_valid(&self) -> bool {
@@ -56,20 +90,20 @@ impl User {
 
 #[derive(Deserialize, Serialize)]
 pub struct Claims {
-    email: String,
+    sub: String,
     exp: usize,
 }
 
 impl Claims {
     pub fn encode(user: &User) -> String {
         let claims = Claims {
-            email: user.email.clone(),
-            exp: {
-                (SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).expect("Time went backwards").as_secs() as usize / 1000) + 10*60
-            },
+            sub: user.email.clone(),
+            exp: 10000000000
         };
 
-        let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(fs::read_to_string("keys/private.pem").expect("Failed to open Keys file").as_ref())).expect("Failed to encode cookie");
+        let token = encode(
+            &Header::default(), &claims,
+             &EncodingKey::from_secret(var("AUTH_SECRET").expect("AUTH_SECRET should be set").as_ref())).expect("Failed to encode cookie");
 
         return token
     }
