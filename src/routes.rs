@@ -1,17 +1,24 @@
-use axum::{extract::Json, http::{StatusCode, header::SET_COOKIE}, response::{IntoResponse, AppendHeaders}};
+use axum::{extract::Json, http::StatusCode};
 use serde::{Deserialize, Serialize};
 use std::{env::var, fs};
 use jsonwebtoken::{encode, Header, EncodingKey};
 use std::time::SystemTime;
+use axum_extra::extract::cookie::{CookieJar, Cookie};
 
-pub async fn login(Json(body): Json<User>) -> impl IntoResponse {
+pub async fn login(Json(body): Json<User>, jar:CookieJar) -> Result<(CookieJar, String), (StatusCode, String)> {
     if body.is_valid() {
-        let token = Claims::encode(&body);
-        let headers = AppendHeaders([(SET_COOKIE, format!("sumboxlogin={}",token))]);
-        (StatusCode::OK,headers, "OK")
+        if jar.get("sumboxlogin").is_none() {
+            let token = Claims::encode(&body);
+            Ok(( jar.add(Cookie::new("sumboxlogin", token)), String::from("OK")))
+        } else {
+            return Err({
+                (StatusCode::UNAUTHORIZED, "Already Logged In".to_string())
+            })
+        }
     }   else {
-
-        return (StatusCode::UNAUTHORIZED, AppendHeaders([(SET_COOKIE, String::from(""))]),"Invalid Credentials")
+        return Err({
+            (StatusCode::UNAUTHORIZED, "Invalid Credentials".to_string())
+        })
     }
 }
 
