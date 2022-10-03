@@ -1,9 +1,8 @@
 use axum::{extract::Json, http::StatusCode};
 use serde::{Deserialize, Serialize};
 use server::ideas::create_idea;
-use std::{env::var, time::{Duration}};
-use jsonwebtoken::{encode, Header, EncodingKey, decode, DecodingKey, Validation, Algorithm, errors::ErrorKind};
-use std::time::SystemTime;
+use std::{env::var};
+use jsonwebtoken::{encode, Header, EncodingKey, decode, DecodingKey, Validation, Algorithm};
 use axum_extra::extract::cookie::{CookieJar, Cookie};
 
 pub async fn login(Json(body): Json<User>, jar:CookieJar) -> Result<(CookieJar, String), (StatusCode, String)> {
