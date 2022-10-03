@@ -22,6 +22,19 @@ pub async fn login(Json(body): Json<User>, jar:CookieJar) -> Result<(CookieJar, 
     }
 }
 
+pub async fn logout(jar:CookieJar) -> Result<(CookieJar, String), (StatusCode, String)> {
+    if jar.get("sumboxlogin").is_some() {
+        Ok((jar.remove(Cookie::named("sumboxlogin")), String::from("OK")))
+    } else {
+        return Err({
+            (StatusCode::UNAUTHORIZED, "Not Logged In".to_string())
+        })
+    }
+}
+
+
+
+
 #[derive(Deserialize, Debug)]
 pub struct User {
     email: String,

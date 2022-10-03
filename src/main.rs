@@ -22,7 +22,8 @@ async fn main(){
     info!("Database Connection Established at {:?}", SystemTime::now());
 
     let app = Router::new()
-        .route("/login", post(login));
+        .route("/login", post(login))
+        .route("/logout", post(logout));
     
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     axum::Server::bind(&addr)
