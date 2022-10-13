@@ -1,9 +1,9 @@
-use jsonwebtoken::{Header, encode, EncodingKey, Validation, decode, DecodingKey, Algorithm};
-use std::env::var;
 use axum::Json;
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use std::env::var;
 
-use axum_extra::extract::{CookieJar, cookie::Cookie};
-use axum::{http::StatusCode};
+use axum::http::StatusCode;
+use axum_extra::extract::{cookie::Cookie, CookieJar};
 use serde::{Deserialize, Serialize};
 
 use crate::routes::boxes::WebError;
@@ -20,10 +20,10 @@ pub async fn login(
                 String::from("OK"),
             ))
         } else {
-            return Err((StatusCode::UNAUTHORIZED, "Already Logged In".to_string()));
+            Err((StatusCode::UNAUTHORIZED, "Already Logged In".to_string()))
         }
     } else {
-        return Err((StatusCode::UNAUTHORIZED, "Invalid Credentials".to_string()));
+        Err((StatusCode::UNAUTHORIZED, "Invalid Credentials".to_string()))
     }
 }
 
@@ -31,7 +31,7 @@ pub async fn logout(jar: CookieJar) -> Result<(CookieJar, String), (StatusCode, 
     if jar.get("sumboxlogin").is_some() {
         Ok((jar.remove(Cookie::named("sumboxlogin")), String::from("OK")))
     } else {
-        return Err(WebError::Unauthorized.get());
+        Err(WebError::Unauthorized.get())
     }
 }
 
@@ -45,7 +45,7 @@ pub fn validate_login(jar: &CookieJar) -> bool {
     validation.sub = Some(var("AUTH_EMAIL").expect("AUTH_SECRET Should be set"));
 
     match decode::<Claims>(
-        &cookie.unwrap().value(),
+        cookie.unwrap().value(),
         &DecodingKey::from_secret(
             var("AUTH_SECRET")
                 .expect("AUTH_SECRET Should be set")
@@ -54,12 +54,9 @@ pub fn validate_login(jar: &CookieJar) -> bool {
         &validation,
     ) {
         Ok(_) => true,
-        Err(_) => {
-            false
-        },
+        Err(_) => false,
     }
 }
-
 
 #[derive(Deserialize)]
 pub struct User {
@@ -67,17 +64,12 @@ pub struct User {
     password: String,
 }
 
-
 impl User {
     pub fn is_valid(&self) -> bool {
         let email = var("AUTH_EMAIL").expect("AUTH_EMAIL must be set");
         let password = var("AUTH_PASSWORD").expect("AUTH_PASSWORD must be set");
 
-        if self.email == email && self.password == password {
-            return true;
-        } else {
-            return false;
-        }
+        self.email == email && self.password == password
     }
 }
 
@@ -105,6 +97,6 @@ impl Claims {
         )
         .expect("Failed to encode cookie");
 
-        return token;
+        token
     }
 }

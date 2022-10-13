@@ -16,8 +16,8 @@ Happy developing!
 
 ## Todo
 
-- [ ] Update Notes
 - [ ] Delete Notes
+- [ ] Final Refactors
 
 ## Contributors ✨
 
