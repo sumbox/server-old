@@ -30,7 +30,7 @@ Thanks goes to these wonderful people:
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://rithul.dev/"><img src="https://avatars.githubusercontent.com/u/45348760?v=4?s=100" width="100px;" alt="Rithul Kamesh"/><br /><sub><b>Rithul Kamesh</b></sub></a><br /><a href="https://github.com/sumbox/server/commits?author=rithulkamesh" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://rithul.dev/"><img src="https://avatars.githubusercontent.com/u/45348760?v=4?s=100" width="100px;" alt="Rithul Kamesh"/><br /><sub><b>Rithul Kamesh</b></sub></a><br /><a href="https://github.com/sumbox/server/commits?author=rithulkamesh" title="Code">💻</a> <a href="#design-rithulkamesh" title="Design">🎨</a></td>
     </tr>
   </tbody>
   <tfoot>
