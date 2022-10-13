@@ -12,4 +12,4 @@ pub async fn create_box(client: &PrismaClient, title: &str, body: &str) -> Resul
         println!("{:?}", data);
 
         Ok(())
-} 
+}
