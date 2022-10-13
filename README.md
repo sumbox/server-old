@@ -7,8 +7,10 @@
 
 To get started with development, 
 
-- Copy the `.env.example` with your own development credentials
+- Open project in VSCode use "View" ->"Command Palette" to "Dev Container: Open Workspace in Container"
+- Open terminal "bash"
 - Run `cargo prisma generate`
+- Run `cargo build`
 
 Build and Run!
 

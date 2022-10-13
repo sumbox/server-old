@@ -1,3 +1,5 @@
+[build]
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
 [alias]
 prisma = "run --bin prisma --"
-dev="watch -x run"
