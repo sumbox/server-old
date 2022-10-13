@@ -1,7 +1,7 @@
-use axum::{extract::Json, http::StatusCode};
+use axum::{extract::Json, http::StatusCode, Extension};
 use serde::{Deserialize, Serialize};
-use server::ideas::create_idea;
-use std::{env::var};
+use crate::{boxes::create_box, State};
+use std::{env::var, sync::Arc};
 use jsonwebtoken::{encode, Header, EncodingKey, decode, DecodingKey, Validation, Algorithm};
 use axum_extra::extract::cookie::{CookieJar, Cookie};
 
@@ -32,9 +32,11 @@ pub async fn logout(jar:CookieJar) -> Result<(CookieJar, String), (StatusCode, S
     }
 }
 
-pub async fn new_idea(Json(body) : Json<Idea>, jar: CookieJar) -> Result<String, (StatusCode, String)> {
+pub async fn new_box(Json(body) : Json<Idea>, 
+Extension(state): Extension<Arc<State>>,
+jar: CookieJar ) -> Result<String, (StatusCode, String)> {
     if validate_login(&jar) {
-        create_idea(&body.title, &body.body);
+        create_box(&state.client, &body.title, &body.body).await.expect("Failed to create Box");
         Ok(String::from("OK"))
     } else {
         return Err({
@@ -59,7 +61,6 @@ fn validate_login(jar: &CookieJar) -> bool {
         Err(_) => false,
     }
 }
-
 
 #[derive(Deserialize)]
 pub struct User {

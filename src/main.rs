@@ -1,33 +1,36 @@
 mod routes;
+mod boxes;
+mod prisma;
+
+use std::{sync::Arc, net::SocketAddr};
 use routes::*;
-
-// use database::*;
-// use server::schema;
-// use server::models;
-use server::init::*;
-// use server::ideas::*;
-
 use axum::{
-    routing::{post}, Router
+    routing::{post}, Router, extract::Extension,
 };
-
-use std::net::SocketAddr;
+use prisma::PrismaClient;
 
 
 #[tokio::main]
 async fn main(){
     
-    let _ = init();
-    
+    dotenvy::dotenv().ok();
+
+    let client = prisma::new_client().await.expect("Failed to connect to Database. Is your DATABASE_URL set?");
+    let state = Arc::new(State {client});
+
     let app = Router::new()
         .route("/login", post(login))
         .route("/logout", post(logout))
-        .route("/new", post(new_idea));
-        // .layer(Extension(share));
-    
+        .route("/new", post(new_box))
+        .layer(Extension(state));
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     axum::Server::bind(&addr)
             .serve(app.into_make_service())
             .await
             .expect("Failed to Start Server");
+}
+
+pub struct State {
+    pub client: PrismaClient
 }
