@@ -1,4 +1,3 @@
-
 use prisma_client_rust::QueryError;
 
 use crate::prisma::{PrismaClient, boxes};
@@ -13,4 +12,4 @@ pub async fn create_box(client: &PrismaClient, title: &str, body: &str) -> Resul
         println!("{:?}", data);
 
         Ok(())
-}   
+} 
