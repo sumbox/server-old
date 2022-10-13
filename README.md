@@ -12,7 +12,7 @@ To get started with development,
 
 Build and Run!
 
-Happy developing
+Happy developing!
 
 ## Todo
 
