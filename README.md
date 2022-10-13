@@ -14,12 +14,6 @@ Build and Run!
 
 Happy developing!
 
-## Todo
-
-- [ ] Update Notes
-- [ ] Delete Notes
-- [ ] Cleanup and Refactors
-
 ## Contributors ✨
 
 Thanks goes to these wonderful people:

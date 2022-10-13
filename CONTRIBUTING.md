@@ -1,5 +1,5 @@
 
-Thank you for investing your time in contributing to our project! Any contribution you make will be reflected on [docs.sumbox.com](https://docs.sumbox.com/en) :sparkles:. 
+Thank you for investing your time in contributing to our project! Any contribution you make will be reflected on [docs.sumbox.app](https://docs.sumbox.app/en) :sparkles:. 
 
 Read our [Code of Conduct](./CODE_OF_CONDUCT.md) to keep our community approachable and respectable.
 
