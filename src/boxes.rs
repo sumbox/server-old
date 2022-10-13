@@ -3,13 +3,21 @@ use prisma_client_rust::QueryError;
 use crate::prisma::{PrismaClient, boxes};
 
 pub async fn create_box(client: &PrismaClient, title: &str, body: &str) -> Result<(), QueryError> {
-     let data : boxes::Data = client
+    client
         .boxes()
         .create(
             String::from(title), String::from(body), vec![])
         .exec()
         .await?;
-        println!("{:?}", data);
-
         Ok(())
 }
+
+pub async fn delete_box(client: &PrismaClient, id: i32) -> Result<(), QueryError> {
+    client
+    .boxes()
+    .delete(boxes::id::equals(id))
+    .exec()
+    .await?;
+    Ok(())   
+}
+

@@ -19,9 +19,9 @@ async fn main(){
     let state = Arc::new(State {client});
 
     let app = Router::new()
-        .route("/login", post(login))
-        .route("/logout", post(logout))
-        .route("/new", post(new_box))
+        .route("/auth/login", post(login))
+        .route("/auth/logout", post(logout))
+        .route("/api/box/new", post(new_box))
         .layer(Extension(state));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
