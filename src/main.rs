@@ -1,27 +1,27 @@
 mod routes;
-mod boxes;
+mod data;
 mod prisma;
 
+use crate::routes::auth::{logout, login};
 use std::{sync::Arc, net::SocketAddr};
-use routes::*;
 use axum::{
     routing::{post}, Router, extract::Extension,
 };
 use prisma::PrismaClient;
-
+use crate::routes::boxes::{new_box, upd_box};
 
 #[tokio::main]
 async fn main(){
-    
     dotenvy::dotenv().ok();
 
     let client = prisma::new_client().await.expect("Failed to connect to Database. Is your DATABASE_URL set?");
     let state = Arc::new(State {client});
 
     let app = Router::new()
-        .route("/auth/login", post(login))
-        .route("/auth/logout", post(logout))
+        .route("/api/login", post(login))
+        .route("/api/logout", post(logout))
         .route("/api/box/new", post(new_box))
+        .route("/api/box/update/:id", post(upd_box))
         .layer(Extension(state));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

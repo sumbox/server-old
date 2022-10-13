@@ -18,7 +18,6 @@ Happy developing!
 
 - [ ] Update Notes
 - [ ] Delete Notes
-- [ ] Cleanup and Refactors
 
 ## Contributors ✨
 
