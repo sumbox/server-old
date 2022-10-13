@@ -1,3 +1,4 @@
 [alias]
 prisma = "run --bin prisma --"
 dev="watch -x run"
+
