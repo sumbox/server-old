@@ -8,31 +8,43 @@ use serde::{Deserialize, Serialize};
 
 use crate::routes::boxes::WebError;
 
+#[derive(Deserialize)]
+pub struct User {
+    email: String,
+    password: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Claims {
+    sub: String,
+    exp: usize,
+}
+
 pub async fn login(
     Json(body): Json<User>,
     jar: CookieJar,
 ) -> Result<(CookieJar, String), (StatusCode, String)> {
-    if body.is_valid() {
-        if jar.get("sumboxlogin").is_none() {
-            let token = Claims::encode(&body);
-            Ok((
-                jar.add(Cookie::new("sumboxlogin", token)),
-                String::from("OK"),
-            ))
-        } else {
-            Err((StatusCode::UNAUTHORIZED, "Already Logged In".to_string()))
-        }
-    } else {
-        Err((StatusCode::UNAUTHORIZED, "Invalid Credentials".to_string()))
+    if !body.is_valid() {
+        return Err((StatusCode::UNAUTHORIZED, "Invalid Credentials".to_string()));
     }
+
+    if !jar.get("sumboxlogin").is_none() {
+        return Err((StatusCode::UNAUTHORIZED, "Already Logged In".to_string()));
+    }
+
+    let token = Claims::encode(&body);
+    Ok((
+        jar.add(Cookie::new("sumboxlogin", token)),
+        String::from("OK"),
+    ))
 }
 
 pub async fn logout(jar: CookieJar) -> Result<(CookieJar, String), (StatusCode, String)> {
-    if jar.get("sumboxlogin").is_some() {
-        Ok((jar.remove(Cookie::named("sumboxlogin")), String::from("OK")))
-    } else {
-        Err(WebError::Unauthorized.get())
+    if !jar.get("sumboxlogin").is_some() {
+        return Err(WebError::Unauthorized.get());
     }
+
+    Ok((jar.remove(Cookie::named("sumboxlogin")), String::from("OK")))
 }
 
 pub fn validate_login(jar: &CookieJar) -> bool {
@@ -58,12 +70,6 @@ pub fn validate_login(jar: &CookieJar) -> bool {
     }
 }
 
-#[derive(Deserialize)]
-pub struct User {
-    email: String,
-    password: String,
-}
-
 impl User {
     pub fn is_valid(&self) -> bool {
         let email = var("AUTH_EMAIL").expect("AUTH_EMAIL must be set");
@@ -71,12 +77,6 @@ impl User {
 
         self.email == email && self.password == password
     }
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Claims {
-    sub: String,
-    exp: usize,
 }
 
 impl Claims {
